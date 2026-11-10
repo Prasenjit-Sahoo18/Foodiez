@@ -8,7 +8,7 @@ import { getCache, setCache } from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
 
-const CACHE_TTL = 60 * 60; // Cache for 1 hour
+const CACHE_TTL = 30; // Fresh menu cache (30s)
 
 const fetchTypes = async (): Promise<Type[]> => {
   const cacheKey = "typesData";

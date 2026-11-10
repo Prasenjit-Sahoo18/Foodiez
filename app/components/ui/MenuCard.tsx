@@ -1,28 +1,62 @@
 import { MenuItem } from "@/app/config";
 import AddIcon from "./AddIcon";
 import { CartIcon } from "./Icons";
-import {motion} from "framer-motion"
+import { motion } from "framer-motion";
 
 export default function MenuCard({ menuItem, onClick }: { menuItem: MenuItem; onClick?: () => void }) {
   return (
-    <motion.div  whileHover={{scale:1.02}} className="flex flex-col md:gap-4 gap-2 bg-gradient-to-b from-gray-500/80 to-purple-1000/70 md:rounded-2xl rounded-xl md:pb-0 pb-4 hover:bg-blue-900/30 hover:cursor-pointer sm:h-72 w-68 md:w-full md:h-full">
-      <img src={menuItem.imageUrl} alt="Image" className="md:h-32 h-28  rounded-t-xl" />
-      <div className="flex flex-col justify-between md:gap-6 gap-4 h-full px-5 ">
-        <div className="flex flex-col gap-2"> 
-          <div className="flex justify-between items-center">
-            <h2 className="lg:text-xl md:text-lg text-md font-semibold">{menuItem.name}</h2>
-            <h2 className="md:hidden text-sm text-blue-300 font-medium font-sans">&#8377; {menuItem.price}</h2>
+    <motion.div
+      whileHover={{ y: -6, scale: 1.02 }}
+      transition={{ duration: 0.2 }}
+      className="flex flex-col justify-between bg-slate-900/90 border border-slate-800 hover:border-amber-500/60 shadow-xl rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-amber-500/10 transition-all sm:h-[360px] w-full"
+    >
+      {/* Food Image & Badge */}
+      <div className="relative w-full h-44 overflow-hidden bg-slate-800">
+        <img
+          src={menuItem.imageUrl || "/all-items-image.jpg"}
+          alt={menuItem.name}
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-108"
+        />
+        <div className="absolute top-2.5 right-2.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
+          <span className="text-[11px] font-semibold text-amber-300">
+            {menuItem.typeName}
+          </span>
+        </div>
+      </div>
+
+      {/* Info & Pricing */}
+      <div className="flex flex-col justify-between flex-1 p-4 gap-3">
+        <div className="space-y-1">
+          <div className="flex justify-between items-start gap-2">
+            <h2 className="text-base md:text-lg font-bold text-white line-clamp-1">
+              {menuItem.name}
+            </h2>
           </div>
-          <h4 className="text-xs text-gray-300">{menuItem.description}</h4>
+          <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
+            {menuItem.description}
+          </p>
         </div>
-        <div className="hidden md:flex justify-between items-center">
-          <h2 className="text-xl flex gap-1 text-md justify-center items-center font-sans text-blue-300 font-semibold"><p className="">&#8377; </p> {menuItem.price}</h2>
-          <AddIcon onClick={onClick} />
-        </div>
-        <div className="w-full ">
-          <motion.button onClick={onClick} whileTap={{scale:0.9}} className="cursor-pointer w-full flex gap-2 justify-center items-center bg-gradient-to-r from-green-500/80 to-green-700/80 hover:from-green-500 hover:to-green-700 transition-all transform rounded-md text-xs font-semibold py-2 md:hidden">
-            <CartIcon/>
-            Add to Cart
+
+        {/* Pricing and Action */}
+        <div className="flex items-center justify-between pt-2 border-t border-slate-800/80">
+          <div className="flex items-baseline gap-0.5">
+            <span className="text-sm font-semibold text-amber-400">&#8377;</span>
+            <span className="text-xl font-bold font-mono text-amber-400">
+              {menuItem.price}
+            </span>
+          </div>
+
+          <div className="hidden md:block">
+            <AddIcon onClick={onClick} />
+          </div>
+
+          <motion.button
+            onClick={onClick}
+            whileTap={{ scale: 0.95 }}
+            className="md:hidden flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-semibold rounded-lg text-xs transition-all shadow-md cursor-pointer"
+          >
+            <CartIcon />
+            <span>Add</span>
           </motion.button>
         </div>
       </div>

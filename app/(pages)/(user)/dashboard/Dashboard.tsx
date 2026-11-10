@@ -104,6 +104,14 @@ export default function Dashboard2({
   };
 
 
+  const handleSelectCategory = (name: string | null) => {
+    setCurrentType(name);
+    const el = document.getElementById("menu-section");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -147,7 +155,7 @@ export default function Dashboard2({
               typesData.map((type) => (
                 <motion.div key={type.id} whileHover={{ scale: 1.02 }}>
                   <TypeCard
-                    onClick={() => setCurrentType(type.name)}
+                    onClick={() => handleSelectCategory(type.name)}
                     img={type.image}
                     title={type.name}
                     description={type.description}
@@ -156,7 +164,7 @@ export default function Dashboard2({
               ))}
             <motion.div whileHover={{ scale: 1.02 }}>
               <TypeCard
-                onClick={() => setCurrentType(null)}
+                onClick={() => handleSelectCategory(null)}
                 key={0}
                 img={"/all-items-image.jpg"}
                 title={"All Items"}
@@ -175,41 +183,62 @@ export default function Dashboard2({
       </div>
       <motion.div
         id="menu-section"
-        className="Menu w-full flex flex-col px-8 lg:gap-16 md:gap-14 gap-12 justify-center items-center"
+        className="Menu w-full flex flex-col px-4 md:px-8 lg:gap-10 md:gap-8 gap-6 justify-center items-center"
         initial={{ opacity: 0, scale: 0.95 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="lg:text-5xl sm:text-4xl text-3xl font-medium text-center bg-clip-text text-transparent bg-gradient-to-r  from-cyan-500 to-white via-cyan-100">
-          {currentType == null ? "All Items" : `${currentType}`}
-        </h1>
+        <div className="text-center space-y-2">
+          <h1 className="lg:text-5xl sm:text-4xl text-3xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-amber-200 to-white font-fredoka">
+            {currentType == null ? "Our Full Menu" : `${currentType}`}
+          </h1>
+          <p className="text-gray-400 text-sm md:text-base">
+            {currentType == null
+              ? `Explore all ${menuItems.length} freshly prepared gourmet dishes`
+              : `Showing delicious options in ${currentType}`}
+          </p>
+          {currentType !== null && (
+            <button
+              onClick={() => handleSelectCategory(null)}
+              className="mt-2 text-xs md:text-sm px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 transition-colors cursor-pointer"
+            >
+              &larr; View All Categories
+            </button>
+          )}
+        </div>
 
         {/* Search bar */}
-        <div className="relative w-full sm:max-w-2xl md:max-w-4xl mx-4 bg-indigo-800/20 ">
-          <SearchIcon classname="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 md:h-5 h-4" />
+        <div className="relative w-full sm:max-w-xl md:max-w-2xl mx-auto">
+          <SearchIcon classname="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 md:h-5 h-4" />
           <input
             type="text"
-            placeholder="Search the menu"
-            className="border-gray-600 border-1 md:p-3 p-2 md:pl-13 pl-12 w-full rounded-full focus:outline-none focus:ring-2 focus:border-transparent focus:ring-blue-400 shadow-sm"
+            placeholder="Search our 55+ dishes by name (e.g. Pizza, Biryani, Pasta, Burger...)"
+            className="border border-slate-700 bg-slate-900/90 text-white md:p-3.5 p-2.5 md:pl-13 pl-12 w-full rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 shadow-xl text-sm md:text-base"
             onChange={(e) => browseMenu(e.target.value)}
           />
         </div>
 
         {menuItems.length === 0 ? (
-          <div className="flex items-center justify-center min-h-[300px]">
-            <div className="">No items found</div>
+          <div className="flex flex-col items-center justify-center min-h-[300px] text-gray-400 space-y-3">
+            <span className="text-4xl">&#128532;</span>
+            <div className="text-lg">No dishes found matching your search</div>
+            <button
+              onClick={() => handleSelectCategory(null)}
+              className="text-xs px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500 hover:text-black transition-all cursor-pointer"
+            >
+              Clear filter and show all items
+            </button>
           </div>
         ) : (
-          <motion.div className=" gap-9 lg:gap-y-28 md:gap-y-20 gap-y-10  w-full h-full py-10 flex flex-wrap justify-center items-center">
+          <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-7xl py-6">
             {menuItems.map((item) => (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
-                key={item.id + Math.random()}
-                whileHover={{ y: -10, boxShadow: "0px 10px 15px rgba(0, 0, 0, 0.3)" }}
-                className="flex md:w-72 lg:w-63"
+                key={item.id}
+                className="w-full flex"
               >
                 <MenuCard
                   menuItem={item}
@@ -220,10 +249,9 @@ export default function Dashboard2({
                       });
                     } else {
                       toast.promise(addItemToCart(item.id, user), {
-                        loading: "Adding",
-                        success: <b>Added to cart</b>,
-                        error: <b>Could not add.</b>,
-
+                        loading: "Adding to cart...",
+                        success: <b>Added to cart!</b>,
+                        error: <b>Could not add item.</b>,
                       }, {
                         success: {
                           duration: 700

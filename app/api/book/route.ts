@@ -3,79 +3,79 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest){
+export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions);
 
-    if(!session){
-        return NextResponse.json({
-            message: "Unauthorized"
-        })
+    if (!session || !session.user) {
+        return NextResponse.json(
+            { error: "Unauthorized. Please login to book a table." },
+            { status: 401 }
+        );
     }
-    console.log("Userid: ", session.user.id)
 
-    const { name, guests, phone, date, time} = await req.json();
+    try {
+        const { name, guests, phone, date, time } = await req.json();
 
-    console.log("Name: ", name)
-    console.log("Guests: ", guests)
-    console.log("Phone: ", phone)
-    console.log("Date: ", date)
-    console.log("Time: ", typeof(time))
+        if (!name || !guests || !phone || !date || !time) {
+            return NextResponse.json(
+                { error: "All fields are required to reserve a table." },
+                { status: 400 }
+            );
+        }
 
-    try{
         const table = await prisma.table.create({
             data: {
                 userId: session.user.id,
-                guests,
+                guests: Number(guests),
                 name,
-                phone,
+                phone: Number(phone),
                 date,
                 time
             }
-        })
-        return NextResponse.json(table)
-    }catch(e){
-        return NextResponse.json({ error: `Failed to book table, ${e}` }, { status: 500 });
+        });
+        return NextResponse.json(table, { status: 201 });
+    } catch (e) {
+        console.error("Booking error:", e);
+        return NextResponse.json({ error: `Failed to book table: ${e}` }, { status: 500 });
     }
 }
 
-
-// get table booking data
+// Get table booking data
 export async function GET() {
-
     const session = await getServerSession(authOptions);
 
-    if(!session){
-        return NextResponse.json({
-            message: "Unauthorized"
-        })
+    if (!session || !session.user) {
+        return NextResponse.json(
+            { error: "Unauthorized" },
+            { status: 401 }
+        );
     }
 
-    if(session.user.email==="admin@gmail.com"){
-        try{
+    if (session.user.email === "admin@gmail.com") {
+        try {
             const bookings = await prisma.table.findMany({
                 orderBy: {
                     createdAt: "desc"
                 }
-            })
+            });
             return NextResponse.json(bookings);
-        }catch  {
+        } catch {
             return NextResponse.json({ error: "Failed to fetch bookings." }, { status: 500 });
         }
     }
 
     try {
-      const bookings = await prisma.table.findMany({
-        orderBy: {
-            createdAt: "desc"
-        },
-        where: {
-            userId: session.user.id
-        }
-      })
+        const bookings = await prisma.table.findMany({
+            orderBy: {
+                createdAt: "desc"
+            },
+            where: {
+                userId: session.user.id
+            }
+        });
 
-      return NextResponse.json(bookings);
-
+        return NextResponse.json(bookings);
     } catch (error) {
-      return NextResponse.json({ error: `Failed to fetch bookings. ${error}` }, { status: 500 });
+        return NextResponse.json({ error: `Failed to fetch bookings: ${error}` }, { status: 500 });
     }
-  }
+}
