@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: foodiez
+    runtime: node
+    plan: free
+    buildCommand: "npm run use:postgres && npm install && npx prisma generate && npm run build"
+    startCommand: "npm start"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: NEXTAUTH_URL
+        sync: false
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: AUTH_SECRET
+        fromService:
+          type: web
+          name: foodiez
+          envVarKey: NEXTAUTH_SECRET
